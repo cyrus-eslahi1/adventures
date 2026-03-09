@@ -16,7 +16,16 @@ window.ADVENTURES_DATA = [
         name: 'Coulson Tough',
         description: 'Jumping the Fence of Coulson Tough.',
         image: '',
-        dates: []
+        dates: [
+            {
+                date: '10-5-2026',
+                label: 'October 5, 2026',
+                photos: [],
+                videos: [
+                    'adventures/coulson-tough/10-5-2026/map-recording.mov'
+                ]
+            }
+        ]
     },
     {
         slug: 'deretchin',
