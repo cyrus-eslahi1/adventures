@@ -16,29 +16,29 @@ window.ADVENTURES_DATA = [
         name: 'Coulson Tough',
         description: 'Jumping the Fence of Coulson Tough.',
         image: '',
-        dates: [
-            {
-                date: '3-8-2026',
-                label: 'March 8, 2026',
-                photos: [],
-                videos: [
-                    'adventures/coulson-tough/3-8-2026/IMG_6321.mov',
-                    'adventures/coulson-tough/3-8-2026/IMG_6322.mov',
-                    'adventures/coulson-tough/3-8-2026/IMG_6323.mov',
-                    'adventures/coulson-tough/3-8-2026/IMG_6325.mov',
-                    'adventures/coulson-tough/3-8-2026/IMG_6326.mov',
-                    'adventures/coulson-tough/3-8-2026/IMG_6327.mov',
-                    'adventures/coulson-tough/3-8-2026/IMG_6328.mov'
-                ]
-            }
-        ]
+        dates: []
     },
     {
         slug: 'deretchin',
         name: 'Deretchin',
         description: 'Jumping the Fence of Deretchin.',
         image: '',
-        dates: []
+        dates: [
+            {
+                date: '3-8-2026',
+                label: 'March 8, 2026',
+                photos: [],
+                videos: [
+                    'adventures/deretchin/3-8-2026/IMG_6321.mov',
+                    'adventures/deretchin/3-8-2026/IMG_6322.mov',
+                    'adventures/deretchin/3-8-2026/IMG_6323.mov',
+                    'adventures/deretchin/3-8-2026/IMG_6325.mov',
+                    'adventures/deretchin/3-8-2026/IMG_6326.mov',
+                    'adventures/deretchin/3-8-2026/IMG_6327.mov',
+                    'adventures/deretchin/3-8-2026/IMG_6328.mov'
+                ]
+            }
+        ]
     },
     {
         slug: 'example',
