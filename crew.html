@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%231a1a2e'/><rect x='8' y='8' width='8' height='8' fill='%23e94560'/><rect x='16' y='16' width='8' height='8' fill='%23e94560'/></svg>">
+    <link rel="stylesheet" href="styles.css">
+    <title>Adventure Website — Our Crew</title>
+</head>
+<body class="has-hero-bg">
+    <header class="site-header">
+        <a href="index.html" class="logo">
+            <span class="logo-icon">
+                <span class="logo-square"></span>
+                <span class="logo-square"></span>
+                <span class="logo-square logo-square--accent"></span>
+                <span class="logo-square logo-square--accent"></span>
+            </span>
+            <span class="logo-text">Adventure</span>
+        </a>
+        <nav class="main-nav">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="adventures.html" class="nav-link">Adventures</a>
+            <a href="crew.html" class="nav-link">Our Crew</a>
+            <a href="donations.html" class="nav-link">Donations</a>
+        </nav>
+        <a href="adventures.html" class="btn btn--primary">Check it out</a>
+    </header>
+
+    <main class="page-content page-content--crew">
+        <section class="crew-intro">
+            <h1 class="crew-intro__title">Meet the crew</h1>
+            <p class="crew-intro__tagline">The people behind every adventure.</p>
+        </section>
+
+        <div class="crew-list" id="crew-list">
+            <!-- Cards rendered from crew data below -->
+        </div>
+    </main>
+
+    <script>
+        // Edit names, images, and descriptions here. Add or remove crew members as needed.
+        const crew = [
+            {
+                name: 'Cyrus',
+                image: 'images/cyrus.jpg',
+                description: 'Cyrus is a nonchalant mf that has mad potentinal but is scared of girls.'
+            },
+            {
+                name: 'Ario',
+                image: 'images/ario.jpg',
+                description: 'Ario is a tuff, nonchalant, good looking guy who is also scared of girls.'
+            },
+            {
+                name: 'Artin',
+                image: 'images/artin.jpg',
+                description: 'Artin is a chalant guy that is also scared of girls. But hes also good at doing these adventures.'
+            }
+        ];
+
+        const placeholderImage = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=400&fit=crop';
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function createCrewCard(member) {
+            const card = document.createElement('article');
+            card.className = 'crew-card';
+            card.innerHTML =
+                '<div class="crew-card__media">' +
+                    '<img class="crew-card__photo" src="' + escapeHtml(member.image) + '" alt="' + escapeHtml(member.name) + '" onerror="this.src=\'' + placeholderImage + '\'">' +
+                '</div>' +
+                '<div class="crew-card__body">' +
+                    '<h2 class="crew-card__name">' + escapeHtml(member.name) + '</h2>' +
+                    '<p class="crew-card__description">' + escapeHtml(member.description) + '</p>' +
+                '</div>';
+            return card;
+        }
+
+        const list = document.getElementById('crew-list');
+        crew.forEach(function (member) {
+            list.appendChild(createCrewCard(member));
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%231a1a2e'/><rect x='8' y='8' width='8' height='8' fill='%23e94560'/><rect x='16' y='16' width='8' height='8' fill='%23e94560'/></svg>">
+    <link rel="stylesheet" href="styles.css">
+    <title>Adventure Website — Adventure</title>
+</head>
+<body class="has-hero-bg">
+    <header class="site-header">
+        <a href="index.html" class="logo">
+            <span class="logo-icon">
+                <span class="logo-square"></span>
+                <span class="logo-square"></span>
+                <span class="logo-square logo-square--accent"></span>
+                <span class="logo-square logo-square--accent"></span>
+            </span>
+            <span class="logo-text">Adventure</span>
+        </a>
+        <nav class="main-nav">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="adventures.html" class="nav-link">Adventures</a>
+            <a href="crew.html" class="nav-link">Our Crew</a>
+            <a href="donations.html" class="nav-link">Donations</a>
+        </nav>
+        <a href="adventures.html" class="btn btn--primary">Check it out</a>
+    </header>
+
+    <main class="page-content page-content--detail" id="detail-root">
+        <p class="detail-loading" id="detail-loading">Loading…</p>
+    </main>
+
+    <!-- Slideshow overlay: watch all media in order -->
+    <div id="slideshow" class="slideshow" aria-hidden="true">
+        <button type="button" class="slideshow__close" id="slideshow-close" aria-label="Close">×</button>
+        <button type="button" class="slideshow__nav slideshow__prev" id="slideshow-prev" aria-label="Previous">←</button>
+        <div class="slideshow__content" id="slideshow-content"></div>
+        <button type="button" class="slideshow__nav slideshow__next" id="slideshow-next" aria-label="Next">→</button>
+        <div class="slideshow__counter" id="slideshow-counter"></div>
+    </div>
+
+    <script src="js/adventures-data.js"></script>
+    <script>
+        function getSlugFromUrl() {
+            var params = new URLSearchParams(window.location.search);
+            return params.get('adventure') || '';
+        }
+
+        function escapeHtml(text) {
+            if (text == null) return '';
+            var div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function youtubeEmbedUrl(url) {
+            if (!url) return null;
+            var m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+            return m ? 'https://www.youtube.com/embed/' + m[1] : null;
+        }
+
+        function buildMediaList(day) {
+            var list = [];
+            (day.photos || []).forEach(function (src) {
+                list.push({ type: 'photo', src: src });
+            });
+            (day.videos || []).forEach(function (src) {
+                var embed = youtubeEmbedUrl(src);
+                list.push({ type: 'video', src: src, embed: embed || undefined });
+            });
+            return list;
+        }
+
+        function renderMediaCard(item, index, dateIndex) {
+            var isVideo = item.type === 'video';
+            var thumb = '';
+            if (isVideo) {
+                var ytId = item.src && (item.src.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/) || [])[1];
+                if (ytId) {
+                    thumb = '<div class="media-card__thumb media-card__thumb--video" style="background-image:url(https://img.youtube.com/vi/' + escapeHtml(ytId) + '/mqdefault.jpg)"></div>';
+                } else {
+                    thumb = '<div class="media-card__thumb media-card__thumb--video"><video preload="metadata" muted src="' + escapeHtml(item.src) + '"></video><span class="media-card__play" aria-hidden="true"></span></div>';
+                }
+            } else {
+                thumb = '<div class="media-card__thumb"><img src="' + escapeHtml(item.src) + '" alt="" loading="lazy"></div>';
+            }
+            return '<div class="media-card" data-index="' + index + '" data-date-index="' + dateIndex + '" data-src="' + escapeHtml(item.src) + '" data-type="' + item.type + '" data-embed="' + escapeHtml(item.embed || '') + '">' + thumb + '<button type="button" class="media-card__hit" aria-label="Open slideshow"></button></div>';
+        }
+
+        function renderDetail() {
+            var slug = getSlugFromUrl();
+            var root = document.getElementById('detail-root');
+            var loading = document.getElementById('detail-loading');
+            var adventures = window.ADVENTURES_DATA || [];
+            var adventure = adventures.filter(function (a) { return a.slug === slug; })[0];
+
+            if (loading) loading.remove();
+
+            if (!adventure) {
+                root.innerHTML =
+                    '<div class="detail-not-found">' +
+                        '<h1 class="page-title">Adventure not found</h1>' +
+                        '<p><a href="adventures.html" class="nav-link">Back to Adventures</a></p>' +
+                    '</div>';
+                return;
+            }
+
+            var html = '';
+
+            html += '<div class="detail-header">';
+            html += '<a href="adventures.html" class="detail-back">← Adventures</a>';
+            html += '<h1 class="detail-title">' + escapeHtml(adventure.name) + '</h1>';
+            if (adventure.description) {
+                html += '<p class="detail-description">' + escapeHtml(adventure.description) + '</p>';
+            }
+            html += '</div>';
+
+            var hasDates = adventure.dates && adventure.dates.length > 0;
+
+            if (hasDates) {
+                adventure.dates.forEach(function (day, dateIndex) {
+                    var mediaList = buildMediaList(day);
+                    if (mediaList.length === 0) return;
+
+                    var hasPhotos = (day.photos || []).length > 0;
+                    var hasVideos = (day.videos || []).length > 0;
+
+                    var mediaJson = JSON.stringify(mediaList).replace(/'/g, '&#39;');
+                    html += "<section class=\"detail-date-section\" data-media='" + mediaJson + "'>";
+                    html += '<h2 class="detail-date-title">' + escapeHtml(day.label || day.date) + '</h2>';
+                    html += '<p class="detail-date-hint">Click a card to open a slideshow and watch all in order.</p>';
+                    html += '<div class="detail-media-cards">';
+                    mediaList.forEach(function (item, i) {
+                        html += renderMediaCard(item, i, dateIndex);
+                    });
+                    html += '</div></section>';
+                });
+            }
+
+            if (!hasDates || adventure.dates.every(function (d) {
+                return (!d.photos || d.photos.length === 0) && (!d.videos || d.videos.length === 0);
+            })) {
+                html += '<p class="detail-empty">Add date subfolders (e.g. <code>3-8-2026</code>) under this adventure’s folder, then list each date’s <code>photos</code> and <code>videos</code> in <code>js/adventures-data.js</code> in the <code>dates</code> array.</p>';
+            }
+
+            root.innerHTML = html;
+            document.title = 'Adventure Website — ' + (adventure.name || 'Adventure');
+
+            bindSlideshow();
+        }
+
+        function bindSlideshow() {
+            var overlay = document.getElementById('slideshow');
+            var content = document.getElementById('slideshow-content');
+            var counterEl = document.getElementById('slideshow-counter');
+            var closeBtn = document.getElementById('slideshow-close');
+            var prevBtn = document.getElementById('slideshow-prev');
+            var nextBtn = document.getElementById('slideshow-next');
+
+            var state = { list: [], index: 0, currentVideo: null };
+
+            function showSlide() {
+                if (state.list.length === 0) return;
+                var item = state.list[state.index];
+                if (item.type === 'photo') {
+                    if (state.currentVideo) {
+                        state.currentVideo.pause();
+                        state.currentVideo = null;
+                    }
+                    content.innerHTML = '<img class="slideshow__img" src="' + escapeHtml(item.src) + '" alt="">';
+                } else {
+                    if (state.currentVideo) state.currentVideo.pause();
+                    if (item.embed) {
+                        content.innerHTML = '<div class="slideshow__video-wrap slideshow__video-wrap--embed"><iframe class="slideshow__iframe" src="' + escapeHtml(item.embed) + '?autoplay=1" allowfullscreen allow="autoplay"></iframe></div>';
+                    } else {
+                        content.innerHTML = '<div class="slideshow__video-wrap"><video class="slideshow__video" controls autoplay src="' + escapeHtml(item.src) + '"></video></div>';
+                        state.currentVideo = content.querySelector('video');
+                        if (state.currentVideo) state.currentVideo.play().catch(function () {});
+                    }
+                }
+                counterEl.textContent = (state.index + 1) + ' / ' + state.list.length;
+                overlay.setAttribute('aria-hidden', 'false');
+                overlay.classList.add('slideshow--open');
+            }
+
+            function closeSlideshow() {
+                if (state.currentVideo) {
+                    state.currentVideo.pause();
+                    state.currentVideo = null;
+                }
+                overlay.classList.remove('slideshow--open');
+                overlay.setAttribute('aria-hidden', 'true');
+            }
+
+            function go(delta) {
+                state.index = (state.index + delta + state.list.length) % state.list.length;
+                showSlide();
+            }
+
+            function openSlideshowFromCard(card) {
+                var section = card && card.closest && card.closest('.detail-date-section');
+                if (!section) return;
+                var listJson = section.getAttribute('data-media');
+                if (!listJson) return;
+                var decoded = document.createElement('div');
+                decoded.innerHTML = '<span>' + listJson.replace(/</g, '&lt;') + '</span>';
+                listJson = decoded.textContent || listJson;
+                state.list = JSON.parse(listJson);
+                state.index = parseInt(card.getAttribute('data-index'), 10) || 0;
+                showSlide();
+            }
+
+            var detailRoot = document.getElementById('detail-root');
+            detailRoot.querySelectorAll('.media-card').forEach(function (card) {
+                var hit = card.querySelector('.media-card__hit');
+                if (!hit) return;
+                hit.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openSlideshowFromCard(card);
+                });
+            });
+
+            closeBtn.addEventListener('click', closeSlideshow);
+            prevBtn.addEventListener('click', function () { go(-1); });
+            nextBtn.addEventListener('click', function () { go(1); });
+
+            overlay.addEventListener('click', function (e) {
+                if (e.target === overlay) closeSlideshow();
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (!overlay.classList.contains('slideshow--open')) return;
+                if (e.key === 'Escape') closeSlideshow();
+                if (e.key === 'ArrowLeft') go(-1);
+                if (e.key === 'ArrowRight') go(1);
+            });
+        }
+
+        renderDetail();
+    </script>
+</body>
+</html>
