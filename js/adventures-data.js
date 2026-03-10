@@ -3,7 +3,7 @@
  *
  * For each adventure:
  * - slug: URL identifier (lowercase, no spaces). Folder name is the slug with hyphens (e.g. coulson-tough).
- * - image: cover image for the list card (optional).
+ * - image: cover image for the list card; use images/adventure-images/<name>.png (optional).
  * - dates: array of outings. Each has:
  *   - date: folder name (e.g. '3-8-2026').
  *   - label: display label (e.g. 'March 8, 2026').
@@ -15,7 +15,7 @@ window.ADVENTURES_DATA = [
         slug: 'coulsontough',
         name: 'Coulson Tough',
         description: 'Jumping the Fence of Coulson Tough.',
-        image: '',
+        image: 'images/adventure-images/coulson-tough.png',
         dates: [
             {
                 date: '10-5-2026',
@@ -31,7 +31,7 @@ window.ADVENTURES_DATA = [
         slug: 'deretchin',
         name: 'Deretchin',
         description: 'Jumping the Fence of Deretchin.',
-        image: '',
+        image: 'images/adventure-images/deretchin.png',
         dates: [
             {
                 date: '3-8-2026',
